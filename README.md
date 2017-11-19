@@ -26,3 +26,4 @@ indicators to predict opening weekend success (Web Scraping, Regression, Regular
 explored and analyzed MTA subway data to maximize proximity to technology firms for fundraising street
 canvassers (Data Munging, Analysis, Visualization)
 
+Enjoy!
