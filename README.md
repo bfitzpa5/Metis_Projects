@@ -2,7 +2,8 @@
 
 Over the summer I attended [Metis' Data Science Bootcamp](http://www.thisismetis.com/data-science-bootcamps "Metis' Bootcamp Page").
 Over the course of twelve weeks, we designed and completed four separate projects, each of which incorporated a different area of machine learning. 
-Each project has its own folder in which is a README.md that describing the project and the corresponding code that I used to implement it.
+Each project has its own folder in which is a README.md that describes the project and the corresponding code that I used to implement it.
+Below is a short description of each project for reference.
 
 **Magic Through Machine Learning: Recommending Hogwarts Houses using NLP Analysis (05-kojak)**: Developed a
 Sorting Hat Algorithm through analysis of the Harry Potter book series using Natural Language
