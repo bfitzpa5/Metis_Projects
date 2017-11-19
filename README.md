@@ -1,4 +1,4 @@
-# Metis_Projects
+# Metis Projects
 
 Over the summer I attended [Metis' Data Science Bootcamp](http://www.thisismetis.com/data-science-bootcamps "Metis' Bootcamp Page").
 Over the course of twelve weeks, we designed and completed four separate projects, each of which incorporated a different area of machine learning. 
