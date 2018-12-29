@@ -1,0 +1,20 @@
+Y-variable
+--------------------------------------------------------------------------------
+Domestic Total Gross OR Domestic Opening Weekend Gross?
+
+X-variables
+--------------------------------------------------------------------------------
+Genre
+MPAA Rating
+Runtime
+Production Budget
+
+
+Constraints
+--------------------------------------------------------------------------------
+Domestic movies only
+
+
+Url
+--------------------------------------------------------------------------------
+https://www.boxofficemojo.com/alltime/domestic.htm
