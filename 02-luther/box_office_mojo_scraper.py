@@ -7,57 +7,55 @@ import string
 import pandas as pd
 from collections import defaultdict
 import time
+import datetime as dt
 
 WAIT_TIME = 5
 base_url = 'http://www.boxofficemojo.com'
-
-"""
-Use Big Lebowski as example
-star_wars_url = 'https://www.boxofficemojo.com/movies/?id=starwars8.htm'
-lebow_url = 'http://boxofficemojo.com/movies/?id=biglebowski.htm'
-yr_url = 'https://www.boxofficemojo.com/yearly/'
-webbrowser.open_new_tab(lebow_url)
-webbrowser.open_new_tab(star_wars_url)
-"""
 
 def main(argv):
     field_dict = {'release_date': 'Release Date:', 'distributor': 'Distributor',
                   'rating': 'MPAA Rating', 'genre': 'Genre: ',
                   'runtime': 'Runtime:', 'budget': 'Production Budget:'}
     records = list()
-    url = 'https://www.boxofficemojo.com/yearly/chart/?yr=2018&p=.htm'
-    response = requests.get(url)
-    if response.status_code != 200:
-        raise HttpStatusCodeError(url, code)
-    soup = BeautifulSoup(response.text, 'html5lib')
-    text_pat = re.compile('Movie.*Title.*(click.*to.*view)')
-    row_iter = (soup.find('td', text=text_pat).parent.next_siblings)
-    end_pat = re.compile('Summary.*of.*Movies on Chart')
-    row = next(row_iter)
-    count = 0
-    while row and end_pat.search(row.text) is None:
-        tag = row.find('a')
-        url = tag['href']
-        movie = tag.text
-        count += 1
-        print('Scraping Movie #%d:\t%s...' % (count, movie), end='')
-        record = movie_scrape(movie, url, field_dict)
-        if record:
-            records.append(record)
-            print('Complete')
-        time.sleep(WAIT_TIME)
+    # the years 2007 through 2018 for the top 100 movies url
+    for year in range(2018, 2007, -1):
+        url = '%s/yearly/chart/?yr=%d&p=.htm' % (base_url, year)
+        print ('Scraping %d Data (%s)...' % (year, url), end='')
+        response = requests.get(url)
+        if response.status_code != 200:
+            print('HTTP Status Code Error: %d\nUrl:%s' (response.code, url))
+            sys.exit(1)
+        soup = BeautifulSoup(response.text, 'html5lib')
+        text_pat = re.compile('Movie.*Title.*(click.*to.*view)')
+        row_iter = (soup.find('td', text=text_pat).parent.next_siblings)
+        end_pat = re.compile('Summary.*of.*Movies on Chart')
         row = next(row_iter)
-    
-    pd.DataFrame(records).to_csv('data/test_18.csv', index=False)
+        count = 0
+        while row and end_pat.search(row.text) is None:
+            tag = row.find('a')
+            url = tag['href']
+            title = tag.text
+            count += 1
+            record = movie_scrape(title, url, field_dict)
+            if record:
+                records.append(record)
+            time.sleep(WAIT_TIME)
+            row = next(row_iter)
+        print('Complete')
 
-def movie_scrape(movie, url, field_dict):
+    fname = (  'data/box_office_mojo_data_%s.csv'
+             % dt.datetime.now().isoformat()[0:-7])
+    pd.DataFrame(records).to_csv(fname, index=False)
+    print('See file located at: %s' % fname)
+
+def movie_scrape(title, url, field_dict):
     response = requests.get(base_url + url)
     if response.status_code != 200:
         print("HTTP Error %s: %s" (e.code, e.url))
         return None
     soup = BeautifulSoup(response.text, 'html5lib')
     record = dict()
-    record['movie'] = movie
+    record['title'] = title
     record['url'] = url
     for col, field_name in field_dict.items():
         record[col] = movie_val(soup, field_name)
