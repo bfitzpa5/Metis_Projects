@@ -1,20 +1,38 @@
+
 Y-variable
 --------------------------------------------------------------------------------
-Domestic Total Gross OR Domestic Opening Weekend Gross?
+
+Release Gross* OR Domestic Opening Weekend Gross OR ROI (Release Gross / Budget)
+
+* Release Gross does not include additional releases
 
 X-variables
 --------------------------------------------------------------------------------
-Genre
-MPAA Rating
-Runtime
-Production Budget
 
+Site    Field                Complete
+----    -----------          --------
+Mojo    Release Date            x
+Mojo    Distributor             x
+Mojo    Genre                   -
+Mojo    MPAA Rating             x
+Mojo    Runtime                 x
+Mojo    Production Budget       x
+Mojo    Director                x 
+Mojo    Actors                  x
+Mojo    Opening Weekend         x
+Mojo    Widest Release          x
+Mojo    In Release (Days)       x
+
+imdb    Aspect Ratio            -
+imdb    Production Budget       -
 
 Constraints
 --------------------------------------------------------------------------------
 Domestic movies only
 
 
-Url
+
+Urls
 --------------------------------------------------------------------------------
-https://www.boxofficemojo.com/alltime/domestic.htm
+https://www.boxofficemojo.com/yearly/
+
