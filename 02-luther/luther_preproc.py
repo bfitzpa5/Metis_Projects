@@ -27,14 +27,21 @@ def ctol(col):
             .str.replace(' million', '')
             .astype('float64'))
 
+def genre_dum(input_df):
+    df = input_df.copy()
+    return df.join(patsy.dmatrix('rating', data=df, return_type='dataframe'))
+
+cols = ['open_wkend_gross', 'budget', 'release_date', 'runtime', 'genre']
 df = (df.loc[~df.budget.isna(), ]
       .assign(open_wkend_gross=lambda x: ctoi(x.open_wkend_gross),
               budget=lambda x: ctol(x.budget) * 1000000,
               release_date=lambda x: x.release_date.astype('datetime64'),
-              runtime=lambda x: fmt_runtime(x.runtime)))
+              runtime=lambda x: fmt_runtime(x.runtime))
+      .pipe(genre_dum))
 
 # TODO: make genre dummy
 df.genre.unique()
+
 
 # TODO: make rating dummy
 df.rating.unique()
