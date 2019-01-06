@@ -1,16 +1,30 @@
 import os
+import sys
 import re
-import pandas
-import statsmodels.api as sm
-import statsmodels.formula as smf
+import pandas as pd
+import datetime as dt
 import patsy
 
-files = [x for x in os.listdir('data') if re.match('box_office_mojo_data', x)]
-df = pd.read_csv('data/%s' % sorted(files)[0]).set_index('title')
-
-df.info()
-
-df.dtypes
+def main(argv):
+    files = [x for x in os.listdir('data') if re.match('box_office_mojo_data', x)]
+    df = pd.read_csv('data/%s' % sorted(files)[0])#.set_index('title')
+    drop_cols = ['actors', 'director', 'distributor',
+                 'genre', 'rating', 'url', 'in_release', 'Intercept']
+    fname = ('data/box_office_mojo_pp_%s.csv' %
+             dt.datetime.now().isoformat()[0:-7])
+    mask = ~df.budget.isna() & ~df.in_release.isna()
+    (df.loc[mask, ]
+     .assign(open_wkend_gross=lambda x: ctoi(x.open_wkend_gross),
+             budget=lambda x: ctol(x.budget) * 1000000,
+             release_date=lambda x: x.release_date.astype('datetime64'),
+             runtime=lambda x: fmt_runtime(x.runtime),
+             in_release_days=lambda x: (x.in_release.str.split(expand=True)
+                                        [0].astype('int64')),
+             widest_release=lambda x: ctoi(x.widest_release))
+     .pipe(rating_dum)
+     .drop(drop_cols, axis=1)
+     .to_csv(fname, index=False))
+    print('Luther Preprocessing Successful Woo Woo!')
 
 def fmt_runtime(col):
     return (col.str.split(' ', expand=True)
@@ -19,7 +33,10 @@ def fmt_runtime(col):
             .apply(lambda row: row[0] * 60 + row[2], axis=1))
 
 def ctoi(col):
-    return col.str.replace('$', '').str.replace(',', '').astype('int64')
+    return (col.str
+            .replace('$', '')
+            .str.replace(',', '')
+            .astype('int64'))
 
 def ctol(col):
     return (col.str.replace('$', '')
@@ -27,31 +44,23 @@ def ctol(col):
             .str.replace(' million', '')
             .astype('float64'))
 
-def genre_dum(input_df):
+def rating_dum(input_df):
     df = input_df.copy()
     return df.join(patsy.dmatrix('rating', data=df, return_type='dataframe'))
 
-cols = ['open_wkend_gross', 'budget', 'release_date', 'runtime', 'genre']
-df = (df.loc[~df.budget.isna(), ]
-      .assign(open_wkend_gross=lambda x: ctoi(x.open_wkend_gross),
-              budget=lambda x: ctol(x.budget) * 1000000,
-              release_date=lambda x: x.release_date.astype('datetime64'),
-              runtime=lambda x: fmt_runtime(x.runtime))
-      .pipe(genre_dum))
 
 # TODO: make genre dummy
-df.genre.unique()
-
-
-# TODO: make rating dummy
-df.rating.unique()
+#df.genre.unique()
 
 # TODO: make distributor dummy
-df.distributor.unique()
-df.distributor.value_counts()
+#df.distributor.unique()
+#df.distributor.value_counts()
 
 # TODO: figure out something for actors
 
 # TODO: figure out something for directors
 
-# TODO: in_release
+# TODO: add Oscars
+
+if __name__ == '__main__':
+    main(sys.argv)
