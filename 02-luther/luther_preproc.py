@@ -2,19 +2,24 @@ import os
 import sys
 import re
 import pandas as pd
+import numpy as np
 import datetime as dt
 import patsy
 
+
 def main(argv):
     files = [x for x in os.listdir('data') if re.match('box_office_mojo_data', x)]
-    df = pd.read_csv('data/%s' % sorted(files)[0])#.set_index('title')
-    drop_cols = ['actors', 'director', 'distributor',
-                 'genre', 'rating', 'url', 'in_release', 'Intercept']
+    fname = sorted(files)[-1]
+    df = pd.read_csv('data/%s' % fname)#.set_index('title')
+    drop_cols = ['actors', 'director', 'distributor', 'url', 'Intercept']
     fname = ('data/box_office_mojo_pp_%s.csv' %
              dt.datetime.now().isoformat()[0:-7])
-    mask = ~df.budget.isna() & ~df.in_release.isna()
+    mask = (  ~df.budget.isna()
+            & ~df.in_release.isna()
+            & ~df.domestic_total_gross.isna())
     (df.loc[mask, ]
      .assign(open_wkend_gross=lambda x: ctoi(x.open_wkend_gross),
+             domestic_total_gross=lambda x: ctoi(x.domestic_total_gross),
              budget=lambda x: ctol(x.budget) * 1000000,
              release_date=lambda x: x.release_date.astype('datetime64'),
              runtime=lambda x: fmt_runtime(x.runtime),
@@ -25,6 +30,15 @@ def main(argv):
      .drop(drop_cols, axis=1)
      .to_csv(fname, index=False))
     print('Luther Preprocessing Successful Woo Woo!')
+
+
+def budget(x):
+    if x != x:
+        return x
+    if re.search(r' million', x):
+        return int(float(x.replace(' million', '').replace('$', '')) * 1000000)
+    else:
+        return int(x.replace('$', '').replace(',', ''))
 
 def fmt_runtime(col):
     return (col.str.split(' ', expand=True)
@@ -41,7 +55,6 @@ def ctoi(col):
 def ctol(col):
     return (col.str.replace('$', '')
             .str.replace(',', '')
-            .str.replace(' million', '')
             .astype('float64'))
 
 def rating_dum(input_df):

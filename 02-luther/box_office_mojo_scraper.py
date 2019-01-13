@@ -15,7 +15,8 @@ base_url = 'http://www.boxofficemojo.com'
 def main(argv):
     field_dict = {'release_date': 'Release Date:', 'distributor': 'Distributor',
                   'rating': 'MPAA Rating', 'genre': 'Genre: ',
-                  'runtime': 'Runtime:', 'budget': 'Production Budget:'}
+                  'runtime': 'Runtime:', 'budget': 'Production Budget:',
+                  'domestic_total_gross': 'Domestic Total Gross'}
     records = list()
     # the years 2007 through 2018 for the top 100 movies url
     for year in range(2018, 2007, -1):
