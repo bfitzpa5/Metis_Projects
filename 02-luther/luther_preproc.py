@@ -20,21 +20,19 @@ def main(argv):
     (df.loc[mask, ]
      .assign(open_wkend_gross=lambda x: ctoi(x.open_wkend_gross),
              domestic_total_gross=lambda x: ctoi(x.domestic_total_gross),
-             budget=lambda x: ctol(x.budget) * 1000000,
+             budget=lambda x: x.budget.apply(budget),
              release_date=lambda x: x.release_date.astype('datetime64'),
              runtime=lambda x: fmt_runtime(x.runtime),
              in_release_days=lambda x: (x.in_release.str.split(expand=True)
                                         [0].astype('int64')),
-             widest_release=lambda x: ctoi(x.widest_release))
+             widest_release=lambda x: ctoi(x.widest_release),
+             log_gross=lambda x: np.log(x.domestic_total_gross))
      .pipe(rating_dum)
      .drop(drop_cols, axis=1)
      .to_csv(fname, index=False))
     print('Luther Preprocessing Successful Woo Woo!')
 
-
 def budget(x):
-    if x != x:
-        return x
     if re.search(r' million', x):
         return int(float(x.replace(' million', '').replace('$', '')) * 1000000)
     else:
@@ -47,8 +45,7 @@ def fmt_runtime(col):
             .apply(lambda row: row[0] * 60 + row[2], axis=1))
 
 def ctoi(col):
-    return (col.str
-            .replace('$', '')
+    return (col.str.replace('$', '')
             .str.replace(',', '')
             .astype('int64'))
 
