@@ -12,19 +12,34 @@ import seaborn as sns
 fname = sorted([x for x in os.listdir('data')
                 if re.match('box_office_mojo_pp', x)])[-1]
 df = (pd.read_csv('data/%s' % fname)
+      .set_index('title')
       .assign(release_date=lambda x: x.release_date.astype('datetime64'),
-              log_gross=lambda x: np.log(x.domestic_total_gross)))
+              log_gross=lambda x: np.log(x.domestic_total_gross),
+              roi=lambda x: x.domestic_total_gross.div(x.budget),
+              log_roi=lambda x: np.log(x.roi)))
 
 (df.nlargest(5, 'domestic_total_gross')
- .loc[:, ['title', 'domestic_total_gross']])
+ .loc[:, ['domestic_total_gross']])
+
+(df.nlargest(5, 'roi')
+ .loc[:, ['roi']])
 
 df.describe().domestic_total_gross
 
 plt.gcf().clear()
-df.rating.unique()
 order = ['G', 'PG', 'PG-13', 'R']
 sns.scatterplot(x='budget', y='domestic_total_gross',
                 hue='rating', data=df, hue_order=order)
+
+plt.gcf().clear()
+order = ['G', 'PG', 'PG-13', 'R']
+sns.scatterplot(x='budget', y='roi',
+                hue='rating', data=df, hue_order=order)
+
+plt.gcf().clear()
+order = ['G', 'PG', 'PG-13', 'R']
+sns.scatterplot(x='budget', y='roi', hue='rating',
+                data=df.drop('Paranormal Activity'), hue_order=order)
 
 plt.gcf().clear()
 order = ['G', 'PG', 'PG-13', 'R']
@@ -74,10 +89,32 @@ sns.boxplot(x='month', y='domestic_total_gross',
 
 corrcols = ['budget', 'in_release', 'open_wkend_gross', 'rating',
             'release_date', 'runtime', 'widest_release', 'in_release_days',
+            'domestic_total_gross']
+sns.pairplot(df.loc[:, corrcols])
+
+corrcols = ['budget', 'in_release', 'open_wkend_gross', 'rating',
+            'release_date', 'runtime', 'widest_release', 'in_release_days',
             'log_gross']
 sns.pairplot(df.loc[:, corrcols])
 
 corrcols = ['budget', 'in_release', 'open_wkend_gross', 'rating',
             'release_date', 'runtime', 'widest_release', 'in_release_days',
-            'domestic_total_gross']
+            'roi']
 sns.pairplot(df.loc[:, corrcols])
+
+corrcols = ['budget', 'in_release', 'open_wkend_gross', 'rating',
+            'release_date', 'runtime', 'widest_release', 'in_release_days',
+            'roi']
+outliers = df.nlargest(5, 'roi').index.tolist()
+sns.pairplot(df.drop(outliers).loc[:, corrcols])
+
+corrcols = ['budget', 'in_release', 'open_wkend_gross', 'rating',
+            'release_date', 'runtime', 'widest_release', 'in_release_days',
+            'log_roi']
+sns.pairplot(df.loc[:, corrcols])
+
+corrcols = ['budget', 'in_release', 'open_wkend_gross', 'rating',
+            'release_date', 'runtime', 'widest_release', 'in_release_days',
+            'log_roi']
+outliers = df.nlargest(5, 'roi').index.tolist()
+sns.pairplot(df.drop(outliers).loc[:, corrcols])
