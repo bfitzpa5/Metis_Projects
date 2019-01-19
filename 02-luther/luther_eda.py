@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import numpy as np
+import datetime as dt
 import re
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
@@ -12,32 +13,50 @@ fname = sorted([x for x in os.listdir('data')
                 if re.match('box_office_mojo_pp', x)])[-1]
 df = (pd.read_csv('data/%s' % fname)
       .assign(release_date=lambda x: x.release_date.astype('datetime64'),
-              log_gross=lambda x: np.log(df.domestic_total_gross)))
+              log_gross=lambda x: np.log(x.domestic_total_gross)))
 
-df.nlargest(5, 'domestic_total_gross').loc[:, 'title']
+(df.nlargest(5, 'domestic_total_gross')
+ .loc[:, ['title', 'domestic_total_gross']])
 
 df.describe().domestic_total_gross
 
 plt.gcf().clear()
-sns.scatterplot(x='budget', y='domestic_total_gross', hue='rating', data=df)
+df.rating.unique()
+order = ['G', 'PG', 'PG-13', 'R']
+sns.scatterplot(x='budget', y='domestic_total_gross',
+                hue='rating', data=df, hue_order=order)
 
 plt.gcf().clear()
-sns.boxplot(x='rating', y='domestic_total_gross', data=df)
+order = ['G', 'PG', 'PG-13', 'R']
+sns.boxplot(x='rating', y='domestic_total_gross', data=df, order=order)
 
 plt.gcf().clear()
-sns.scatterplot(x='release_date', y='domestic_total_gross', data=df)
+order = ['G', 'PG', 'PG-13', 'R']
+sns.countplot(x='rating', data=df, order=order)
 
 plt.gcf().clear()
-sns.scatterplot(x='release_date', y='domestic_total_gross', hue='rating', data=df)
+fig = plt.figure()
+ax = fig.add_subplot(111)
+ax.set_xlim(dt.datetime(2008, 1, 1), dt.datetime(2018, 1, 1))
+sns.scatterplot(x='release_date', y='domestic_total_gross', hue='rating',
+                data=df, ax=ax)
+
+(df.loc[df.release_date.dt.year == 2009, ]
+ .nlargest(1, 'domestic_total_gross')
+ .loc[:, ['title', 'domestic_total_gross']])
+
+(df.loc[df.release_date.dt.year == 2012, ]
+ .nlargest(1, 'domestic_total_gross')
+ .loc[:, ['title', 'domestic_total_gross']])
 
 plt.gcf().clear()
 sns.distplot(df.domestic_total_gross)
 
 plt.gcf().clear()
-sns.distplot(np.log(df.domestic_total_gross))
+sns.distplot(np.cbrt(df.domestic_total_gross).values)
 
 plt.gcf().clear()
-sns.distplot(np.cbrt(df.domestic_total_gross).values)
+sns.distplot(df.log_gross)
 
 plt.gcf().clear()
 sns.boxplot(x='year', y='domestic_total_gross',
