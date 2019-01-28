@@ -14,7 +14,8 @@ fname = sorted([x for x in os.listdir('data')
                 if re.match('box_office_mojo_pp', x)])[-1]
 df = (pd.read_csv('data/%s' % fname)
       .assign(release_date=lambda x: x.release_date.astype('datetime64'),
-              log_gross=lambda x: np.log(x.domestic_total_gross)))
+              log_gross=lambda x: np.log(x.domestic_total_gross),
+              widest_release_sq=lambda x: x.widest_release**2))
 
 (df.drop('domestic_total_gross', axis=1)
  .corr()['log_gross'].abs().sort_values(ascending=False))
@@ -27,6 +28,10 @@ lm2 = smf.ols('domestic_total_gross ~ widest_release', data=df)
 fit2 = lm2.fit()
 fit2.summary()
 
+lm2a = smf.ols('domestic_total_gross ~ widest_release + widest_release_sq', data=df)
+fit2a = lm2a.fit()
+fit2a.summary()
+
 lm3 = smf.ols('log_gross ~ widest_release + runtime', data=df)
 fit3 = lm3.fit()
 fit3.summary()
@@ -34,11 +39,6 @@ fit3.summary()
 plt.gcf().clear()
 fit3.resid.plot(style='o')
 
-lm4 = smf.ols('log_gross ~ widest_release + runtime + widest_release*runtime', data=df)
+lm4 = smf.ols('log_gross ~ widest_release + widest_release_sq + runtime', data=df)
 fit4 = lm4.fit()
 fit4.summary()
-
-lm3 = smf.ols('log_gross ~ widest_release + runtime', data=df)
-fit3 = lm3.fit()
-fit3.summary()
-
