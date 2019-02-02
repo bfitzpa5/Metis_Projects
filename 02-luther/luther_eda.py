@@ -26,6 +26,15 @@ df = (pd.read_csv('data/%s' % fname)
 
 df.describe().domestic_total_gross
 
+x = df.open_wkend_gross.div(df.domestic_total_gross).mean() * 100
+print('{:,.2f}% of Total Domestic Gross is Opening Weekend '
+      'Gross on Average'.format(x))
+
+plt.gcf().clear()
+df.open_wkend_gross.div(df.domestic_total_gross).hist()
+
+df.open_wkend_gross.div(df.domestic_total_gross).nlargest(10)
+
 plt.gcf().clear()
 order = ['G', 'PG', 'PG-13', 'R']
 sns.scatterplot(x='budget', y='domestic_total_gross',
