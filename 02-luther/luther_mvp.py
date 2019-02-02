@@ -15,7 +15,12 @@ fname = sorted([x for x in os.listdir('data')
 df = (pd.read_csv('data/%s' % fname)
       .assign(release_date=lambda x: x.release_date.astype('datetime64'),
               log_gross=lambda x: np.log(x.domestic_total_gross),
-              widest_release_sq=lambda x: x.widest_release**2))
+              widest_release_sq=lambda x: x.widest_release**2,
+              release_month=lambda x: x.release_date.dt.month,
+              release_date_julian=lambda x: (x.release_date.dt.strftime('%y%j')
+                                             .astype('int64'))))
+
+df.loc[: , ['release_date', 'release_date_julian']].head()
 
 (df.drop('domestic_total_gross', axis=1)
  .corr()['log_gross'].abs().sort_values(ascending=False))
@@ -42,3 +47,19 @@ fit3.resid.plot(style='o')
 lm4 = smf.ols('log_gross ~ widest_release + widest_release_sq + runtime', data=df)
 fit4 = lm4.fit()
 fit4.summary()
+
+formula_str = ('log_gross ~ widest_release + widest_release_sq + runtime '
+               '+ in_release_days')
+lm5 = smf.ols(formula_str, data=df)
+fit5 = lm5.fit()
+fit5.summary()
+
+
+formula_str = ('log_gross ~ widest_release + widest_release_sq + budget + runtime'
+               ' + in_release_days + release_date_julian + rating_r')
+lm6 = smf.ols(formula_str, data=df.rename(columns={'rating[T.R]': 'rating_r'}))
+fit6 = lm6.fit()
+fit6.summary()
+
+(df.drop('domestic_total_gross', axis=1)
+ .corr()['log_gross'].abs().sort_values(ascending=False))
