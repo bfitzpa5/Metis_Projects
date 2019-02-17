@@ -6,7 +6,6 @@ import numpy as np
 import datetime as dt
 import patsy
 
-
 def main(argv):
     files = [x for x in os.listdir('data') if re.match('box_office_mojo_data', x)]
     fname = sorted(files)[-1]
@@ -30,7 +29,8 @@ def main(argv):
      .pipe(rating_dum)
      .drop(drop_cols, axis=1)
      .to_csv(fname, index=False))
-    print('Luther Preprocessing Successful Woo Woo!')
+    print('Luther Preprocessing Successful Woo Woo!'
+          'See file located at: %s' % fname)
 
 def budget(x):
     if re.search(r' million', x):
