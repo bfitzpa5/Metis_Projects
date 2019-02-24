@@ -19,6 +19,7 @@ def LogisticDiagnostics(logr, X, y, threshold=0.5):
     print('\nConfusion Matrix\n' + '*' * 40)
     index = pd.MultiIndex.from_product([['Actual'], [0, 1]])
     columns = pd.MultiIndex.from_product([['Predicted'], [0, 1]])
-    print(pd.DataFrame(confusion_matrix(y, y_pred), index=index, columns=columns)
+    print(pd.DataFrame(metrics.confusion_matrix(y, y_pred), index=index,
+                       columns=columns)
           .applymap('{:,}'.format)
           .to_string())
