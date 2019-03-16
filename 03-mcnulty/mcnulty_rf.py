@@ -1,5 +1,6 @@
 %load_ext autoreload
 %autoreload 2
+
 import os
 import re
 import mcnulty_util as mcu
@@ -41,4 +42,4 @@ X_smt, y_smt = smt.fit_sample(X_train, y_train)
 clf = RandomForestClassifier(n_estimators=100)
 clf.fit(X_smt, y_smt)
 mcu.ClassifierDiagnostics(clf, X_test, y_test)
-plot_feature_importances(clf, X_smt.columns)
+plot_feature_importances(clf, X_test.columns)
