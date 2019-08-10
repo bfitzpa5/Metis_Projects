@@ -2,13 +2,18 @@ import os
 import pandas as pd
 import numpy as np
 import re
+from sklearn.preprocessing import PolynomialFeatures, OneHotEncoder
+from sklearn.compose import ColumnTransformer
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import make_pipeline
 from sklearn.linear_model import LinearRegression
 from sklearn import metrics
-from sklearn.preprocessing import PolynomialFeatures
-from sklearn.pipeline import make_pipeline
-from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_score
 import luther_util as lu
+
+import matplotlib.pyplot as plt
+import matplotlib.style as style
+style.use('fivethirtyeight')
 
 
 fname = sorted([x for x in os.listdir('data')
@@ -24,14 +29,14 @@ df = (pd.read_csv('data/%s' % fname)
       .query('roi < 15')) # filter out ROI outliers
       
 independents = [
-    'budget', 
-    'domestic_total_gross', 
-    'open_wkend_gross',
-    'runtime',
-    'widest_release', 
-    'in_release_days', 
-    ['rating[T.PG]', 'rating[T.PG-13]', 'rating[T.R]'], 
-    ['release_month', 'release_year']]
+  'budget', 
+  'domestic_total_gross', 
+  'open_wkend_gross',
+  'runtime',
+  'widest_release', 
+  'in_release_days', 
+  ['rating[T.PG]', 'rating[T.PG-13]', 'rating[T.R]'], 
+  ['release_month', 'release_year']]
 
 results = list()
 scoring = 'neg_mean_squared_error'
@@ -66,3 +71,26 @@ cols = ['variable', 'degree', 'test_score', 'training_score', 'mse']
 results = (pd.DataFrame(results)
            .reindex(columns=cols)
            .assign(rsme=lambda x: np.sqrt(x.mse)))
+# our best model is budget with degree of 2
+
+variable = 'budget'
+degree = 2
+X = df.loc[:, variable].values.reshape(-1, 1)
+y = df.loc[:, 'roi']
+X_train, X_test, y_train, y_test = train_test_split(X, y)
+lr = make_pipeline(PolynomialFeatures(degree),
+                   LinearRegression())
+lr.fit(X_train, y_train)
+scores = lu.lr_scores(lr, X_train, y_train, X_test, y_test)
+mse = -cross_val_score(lr, X, y, cv=10, scoring=scoring).mean()
+
+
+print("Our best model was budgets"
+      "Let's see how that looks in a plot")
+budgets = np.arange(df.budget.min(), df.budget.max(), 
+                    (df.budget.max()-df.budget.min())/df.shape[0])
+roi = lr.predict(budgets.reshape(-1, 1))
+plt.plot(budgets, roi, color='lightblue')
+plt.scatter(df.budget, df.roi, color='darkgreen', marker='^')
+plt.legend()
+plt.show()
