@@ -27,7 +27,7 @@ In this directory you''l find five files:
   </tr>
   <tr>
     <td>luther_model.py</td>
-    <td>Regression Modeling of Luther Data (Sneak preview, the final model we ended on was a Lasso Regularization with a lot of features!</td> 
+    <td>Regression Modeling of Luther Data (Sneak preview, the final model we ended on was a Lasso Regularization with a lot of features!)</td> 
   </tr>
   <tr>
     <td>luther_util.py</td>
