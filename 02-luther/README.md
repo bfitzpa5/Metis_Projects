@@ -9,27 +9,27 @@ In this directory you''l find five files:
 
 <table style="width:100%">
   <tr>
-    <th><i>File<\i></th>
-    <th><i>Description<\i></th> 
+    <th>File</th>
+    <th>Description</th> 
   </tr>
   <tr>
-    <td>luther_box_office_mojo_scraper.py</td>
+    <td><i>luther_box_office_mojo_scraper.py</i></td>
     <td>Web Scraper built using Beautiful Soup</td> 
   </tr>
   <tr>
-    <td>luther_preproc.py</td>
+    <td><i>luther_preproc.py</i></td>
     <td>Intital preprocessing of scraped Box Office Mojo data using pandas.</td> 
   </tr>
   <tr>
-    <td>luther_eda.py</td>
+    <td><i>luther_eda.py</i></td>
     <td>EDA of the Box Office Mojo Data with fun insights into the movie biz!</td> 
   </tr>
   <tr>
-    <td>luther_model.py</td>
+    <td><i>luther_model.py</i></td>
     <td>Regression Modeling of Luther Data (Sneak preview, the final model we ended on was a Lasso Regularization with a lot of features!)</td> 
   </tr>
   <tr>
-    <td>luther_util.py</td>
+    <td><i>luther_util.py</i></td>
     <td>Helper functions for modeling and EDA</td> 
   </tr>
 </table>
