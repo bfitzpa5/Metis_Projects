@@ -2,7 +2,7 @@
 
 For our second project at Metis, I designed a multivariable regression using data scraped from Box Office Mojo to predict movie ROI.
 
-ROI = Domestic Total Gross / Budget - 1
+`$$ROI = Domestic Total Gross / Budget - 1$$`
 
 
 In this directory you''l find five files:
@@ -14,11 +14,11 @@ In this directory you''l find five files:
   </tr>
   <tr>
     <td><i>luther_box_office_mojo_scraper.py</i></td>
-    <td>Web Scraper built using Beautiful Soup</td> 
+    <td>Web Scraper built using <i>Beautiful Soup</i></td> 
   </tr>
   <tr>
     <td><i>luther_preproc.py</i></td>
-    <td>Intital preprocessing of scraped Box Office Mojo data using pandas.</td> 
+    <td>Initial preprocessing of scraped <i>Box Office Mojo</i> data using <i>Pandas</i></td> 
   </tr>
   <tr>
     <td><i>luther_eda.py</i></td>
@@ -26,7 +26,8 @@ In this directory you''l find five files:
   </tr>
   <tr>
     <td><i>luther_model.py</i></td>
-    <td>Regression Modeling of Luther Data (Sneak preview, the final model we ended on was a Lasso Regularization with a lot of features!)</td> 
+    <td>Regression Modeling of Luther Data
+        (Sneak preview, the final model we ended on was a Lasso Regularization)</td> 
   </tr>
   <tr>
     <td><i>luther_util.py</i></td>
