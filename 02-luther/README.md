@@ -2,10 +2,7 @@
 
 For our second project at Metis, I designed a multivariable regression using data scraped from Box Office Mojo to predict movie ROI.
 
-\begin{equation}
-ROI = Domestic Total Gross / Budget - 1
-\end{equation}
-
+$$ROI = Domestic Total Gross / Budget - 1$$
 
 In this directory you''l find five files:
 
