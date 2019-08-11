@@ -27,6 +27,19 @@ def log_model(results, model, X, y, features, degree=1):
     results.append(record)
     return results
 
+def format_cols(colname, direction):
+    if direction == 'out':
+        return (colname.replace('_', ' ')
+                .title()
+                .replace('Pg', 'PG')
+                .replace('Roi', 'ROI')
+                .replace('Wkend', 'Weekend'))
+    if direction == 'in':
+        return (colname.lower()
+                .replace(' ', '_')
+                .replace('(', '')
+                .replace(')', ''))
+    raise ValueError('Direction must be "in" or "out"')
 
 from sklearn.base import TransformerMixin, BaseEstimator
 
