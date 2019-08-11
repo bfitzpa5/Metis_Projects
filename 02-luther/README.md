@@ -4,8 +4,6 @@ For our second project at Metis, I designed a multivariable regression using dat
 
 `ROI = Domestic Total Gross / Budget - 1`
 
-In this directory you''l find five files:
-
 <table style="width:100%">
   <tr>
     <th>File</th>
