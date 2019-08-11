@@ -9,13 +9,12 @@ In this directory you''l find five files:
 
 <table style="width:100%">
   <tr>
-    <th>File</th>
-    <th>Description</th> 
+    <th><i>File<\i></th>
+    <th><i>Description<\i></th> 
   </tr>
   <tr>
     <td>luther_box_office_mojo_scraper.py</td>
     <td>Web Scraper built using Beautiful Soup</td> 
-    <td>50</td>
   </tr>
   <tr>
     <td>luther_preproc.py</td>
