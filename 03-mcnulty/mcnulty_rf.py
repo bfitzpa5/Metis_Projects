@@ -26,6 +26,12 @@ fname = sorted([x for x in os.listdir('data') if pat.match(x)])[-1]
 df = (pd.read_csv('data/%s' % fname)
       .set_index('id'))
 
+cols = ['loan_amnt', 'int_rate', 'annual_inc', 'dti', 'open_acc',
+        'acc_now_delinq', 'default']
+(df.loc[:, cols]
+ .pipe((sns.pairplot, 'data'), hue='default', diag_kind='kde'))
+
+
 X = df.drop('default', axis=1)
 y = df['default']
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25,
