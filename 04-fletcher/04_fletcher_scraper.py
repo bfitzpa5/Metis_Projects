@@ -16,8 +16,9 @@ Goal                  X
 Amount Pledged        X
 Days to go            X
 Backers               X
-Category              O
+Category              X
 SubCategory           X
+Comments Count        X
 """
 
 
@@ -33,9 +34,10 @@ url = (r'https://www.kickstarter.com/projects/953146955/sleeping-gods')
 response = requests.get(url)
 soup = BeautifulSoup(response.text, 'html.parser')
 
-print(url)
-
 def ks_page_scrape(soup):
+    di = json.loads(soup.find('div', id='react-project-header')['data-initial'])
+
+
     project_name = extract_project_name(soup)
     project_description = extract_project_description(soup)
     location = extract_location(soup)
@@ -45,7 +47,10 @@ def ks_page_scrape(soup):
     amount_pledged = ctoi(soup.find("span", class_="ksr-green-700").text)
     backers = extract_backers(soup)
     days_to_go = extract_days_to_go(soup)
+    category = di['project']['category']['parentCategory']['name']
     subcategory = extract_subcategory(soup)
+    comments_count = di['project']['commentsCount']
+
     row = {'project_name': project_name,
            'project_description': project_description,
            'location': location,
@@ -55,15 +60,10 @@ def ks_page_scrape(soup):
            'amount_pledged': amount_pledged,
            'backers': backers,
            'days_to_go': days_to_go,
-           'subcategory': subcategory}
+           'category': category,
+           'subcategory': subcategory,
+           'comments_count' = comments_count}
     return row
-
-
-
-di_json = json.loads(soup.find('div', id='react-project-header')['data-initial'])
-
-with open('Data/data-initial.txt', 'wt') as out:
-    pprint.pprint(di_json, stream=out)
 
 
 def extract_project_name(soup):
