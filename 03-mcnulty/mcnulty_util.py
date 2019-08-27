@@ -4,6 +4,7 @@ import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.preprocessing import PolynomialFeatures, OneHotEncoder
 from sklearn.pipeline import FeatureUnion, Pipeline
+from sklearn.model_selection import train_test_split
 from sklearn import metrics
 from matplotlib import pyplot as plt
 from matplotlib.ticker import FuncFormatter
@@ -72,7 +73,7 @@ def scores_formatted(input_df):
         df[gs] = df[gs].map('{:,.0f}'.format)
     return df
     
-def log_clf_model(results, model, model_type, X, y, features, degree=1):
+def log_clf_model(model, model_type, X, y, features, degree=1):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=11,
                                                         stratify=y)
     model.fit(X_train, y_train)
@@ -95,7 +96,7 @@ def log_clf_model(results, model, model_type, X, y, features, degree=1):
               'false_positives': fp,
               'false_negatives': fn,
               'true_positives': tp}
-    results.append(record)
+    return record
 
 
 """
