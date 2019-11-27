@@ -7,50 +7,83 @@ Created on Sat Aug 10 23:09:43 2019
 Datapoints
 ---------------
 Name
-Project Title         X
-Project Description   X
-Location              X
-About                 X
-Risks                 X
-Goal                  X
-Amount Pledged        X
-Days to go            X
-Backers               X
-Category              X
-SubCategory           X
-Comments Count        X
+Project Title         0
+Project Description   0
+Location              0
+About                 0
+Risks                 0
+Goal                  0
+Amount Pledged        0
+Days to go            0
+Backers               0
+Category              0
+SubCategory           0
+Comments Count        0
 """
 
-
+import os
 import requests
 import re
 import pprint
 import json
 from bs4 import BeautifulSoup
+import webbrowser
+import pprint
+from selenium import webdriver
+import time
+import pandas as pd
 
-base_url = r'https://www.kickstarter.com/discover'
+base_url = (r'https://www.kickstarter.com/discover/advanced'
+            r'?state=live&sort=end_date&seed=2611991&page=1')
+executable_path = '{}/Downloads/chromedriver'.format(os.path.expanduser('~'))
+browser = webdriver.Chrome(executable_path = executable_path)
+browser.get(base_url)
+xpath = '//*[@id="projects"]/div[4]/a'
+for i in range(1, 200):
+    load_more_btn = browser.find_element_by_xpath(xpath)
+    if load_more_btn:
+       load_more_btn.click()
+       time.sleep(5)
+urls = list()
+for a in browser.find_elements_by_xpath("//a[@href]"):
+    url = a.get_attribute("href")
+    if r'kickstarter.com/projects/' in url and url not in urls:
+        urls.append(url)
+        print(url)
+        print("Number of URLs:{:>10,d}".format(len(urls)))
 
-url = (r'https://www.kickstarter.com/projects/953146955/sleeping-gods')
+(pd.DataFrame(urls, columns=['urls'])
+ .to_csv(r'Data/kickstarter_urls.csv'))
+
+
+
+
+
+response = requests.get(base_url)
+soup = BeautifulSoup(response.text, 'html.parser')
+
+url = (r'https://www.kickstarter.com/projects/104470591'
+       r'/joyscube-interactive-gaming-system-with-hybrid-cube-consoles')
+webbrowser.open_new_tab(url)
 response = requests.get(url)
 soup = BeautifulSoup(response.text, 'html.parser')
 
 def ks_page_scrape(soup):
+    """ Scrape Page """
     di = json.loads(soup.find('div', id='react-project-header')['data-initial'])
-
-
     project_name = extract_project_name(soup)
     project_description = extract_project_description(soup)
     location = extract_location(soup)
     about = extract_about(soup)
     risks = extract_risks(soup)
-    goal = ctoi(soup.find("span", class_="money").text)
-    amount_pledged = ctoi(soup.find("span", class_="ksr-green-700").text)
+    goal = soup.find("span", class_="money").text
+    amount_pledged = soup.find("span", class_="ksr-green-700").text
     backers = extract_backers(soup)
     days_to_go = extract_days_to_go(soup)
     category = di['project']['category']['parentCategory']['name']
     subcategory = extract_subcategory(soup)
     comments_count = di['project']['commentsCount']
-
+    """ Unload Data """
     row = {'project_name': project_name,
            'project_description': project_description,
            'location': location,
@@ -62,7 +95,7 @@ def ks_page_scrape(soup):
            'days_to_go': days_to_go,
            'category': category,
            'subcategory': subcategory,
-           'comments_count' = comments_count}
+           'comments_count': comments_count}
     return row
 
 
