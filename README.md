@@ -17,11 +17,10 @@ Modeling, Sentiment Analysis, Dimensionality Reduction)
 
 [**Cracking the Club's Code : Predicting LendingClub Default Rates `(03-mcnulty)`**](https://bfitzpa5.github.io/mcnulty/): Constructed a Random Forest
 classifcation model to predict borrower defaults among LendingClub Data for a Flask web application
-(Classification, Databases Structures, Flask, D3)
+(Classification Models, Flask, D3)
 
 [**Forecasting Films: Predicting Opening Weekend Success `(02-luther)`**](https://bfitzpa5.github.io/luther/): Designed a Multivariate Regression using
-movie production data scraped from IMDB and Box Office Mojo as well as economic and political
-indicators to predict opening weekend success (Web Scraping, Regression, Regularization)
+movie production data scraped from IMDB and Box Office Mojo to predict movie Return on Investment (Web Scraping, Regression, Regularization)
 
 [**Data Cleaning and Daily Commuters: Exploratory Analysis of New York Subway Traffic `(01-benson)`**](https://bfitzpa5.github.io/benson/): Wrangled,
 explored and analyzed MTA subway data to maximize proximity to technology firms for fundraising street
