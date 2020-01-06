@@ -79,7 +79,7 @@ def ks_scrape(url):
         goal_and_pledged_backers = driver.find_element_by_css_selector("div.spotlight-project-video-archive").text
     except NoSuchElementException:
         xpath_str = '//div[@role="progressbar"]/following-sibling::div[1]'
-        goal_and_pledged_backers = driver.find_element_by_xpath().text
+        goal_and_pledged_backers = driver.find_element_by_xpath(xpath_str).text
     category_url = (driver.find_element_by_css_selector("a[href*='/discover/categories']")
         .get_attribute("href")
     )
