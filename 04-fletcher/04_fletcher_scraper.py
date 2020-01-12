@@ -25,7 +25,7 @@ def main():
     kickstarter_data = list()
     fname = r'Data/kickstarter_data.json'
     
-    for index, url in urls.url.iteritems():   
+    for index, url in urls.url.iteritems():
         print('  {:<10.0f} {}'.format(index, url))
         page_data = ks_scrape(url)
         if page_data:
@@ -51,10 +51,9 @@ def ks_scrape(url):
     except NoSuchElementException:
         pass
     """ Scrape Page """
-    try:
-        project_name = driver.find_element_by_css_selector("div.NS_project_profile__title").text
-    except NoSuchElementException:
-        project_name = driver.find_element_by_css_selector("h2.project-name").text
+    project_name = None
+    while project_name is None:
+        project_name = scrape_project_name(driver, url)
     try:
         project_description = driver.find_element_by_css_selector("div.NS_project_profiles__blurb").text
     except NoSuchElementException:
@@ -98,6 +97,21 @@ def write_json(fname, data):
     with open(fname, "w") as f:
         json.dump(data, f, indent=4, sort_keys=True)
     return True
+
+def scrape_project_name(driver, url):
+    try:
+        project_name = driver.find_element_by_css_selector("div.NS_project_profile__title").text
+        return project_name
+    except NoSuchElementException:
+        try:
+            project_name =  driver.find_element_by_css_selector("h2.project-name").text
+            return project_name
+        except NoSuchElementException:
+            driver.close()
+            driver = webdriver.Chrome(driver_file)
+            driver.get(url)
+            time.sleep(3)
+            return None
 
 if __name__ == '__main__':
     main()
