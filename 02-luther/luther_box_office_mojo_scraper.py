@@ -52,7 +52,7 @@ def main(argv):
 def movie_scrape(title, url, field_dict):
     response = requests.get(base_url + url)
     if response.status_code != 200:
-        print("HTTP Error %s: %s" (e.code, e.url))
+        print("HTTP Error %s: %s" (response.code, response.url))
         return None
     soup = BeautifulSoup(response.text, 'html5lib')
     record = dict()
