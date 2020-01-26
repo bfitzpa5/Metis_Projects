@@ -63,3 +63,9 @@ class ColumnSelector(BaseEstimator, TransformerMixin):
     
     def get_feature_names(self):
         return self.key
+
+def my_tokenizer(doc):
+    if doc.find(' / ') == -1:
+        return doc.split(' ')
+    else:
+        return doc.split(' / ')
