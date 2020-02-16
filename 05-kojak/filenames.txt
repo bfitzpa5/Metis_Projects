@@ -1,7 +1,0 @@
-/home/brendanfitzpatrick/Metis/projects/05-kojak/.gitignore/files/book1.txt
-/home/brendanfitzpatrick/Metis/projects/05-kojak/.gitignore/files/book2.txt
-/home/brendanfitzpatrick/Metis/projects/05-kojak/.gitignore/files/book3.txt
-/home/brendanfitzpatrick/Metis/projects/05-kojak/.gitignore/files/book4.txt
-/home/brendanfitzpatrick/Metis/projects/05-kojak/.gitignore/files/book5.txt
-/home/brendanfitzpatrick/Metis/projects/05-kojak/.gitignore/files/book6.txt
-/home/brendanfitzpatrick/Metis/projects/05-kojak/.gitignore/files/book7.txt
