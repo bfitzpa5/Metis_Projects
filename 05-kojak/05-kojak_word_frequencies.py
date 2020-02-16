@@ -8,29 +8,53 @@ Created on Sun Feb 16 11:34:36 2020
 import json
 from textblob import TextBlob as tb
 
-gryffindor = "The Gryffindor house emphasises the traits of courage as well as \"daring, nerve, and chivalry,\" and thus its members are generally regarded as brave, though sometimes to the point of recklessness. Some Gryffindors have also been noted to be short-tempered. Notably, Gryffindor house contributed many members to Dumbledore's Army and the Order of the Phoenix, although this may have been because the main members made it a point not to associate with other houses. According to Phineas Nigellus Black, members of other houses, particularly Slytherin, sometimes feel that Gryffindors engage in \"pointless heroics.\" Another Slytherin, Severus Snape, considered many Gryffindors to be self-righteous and arrogant, with no regard for rule"
 
-t = tb(gryffindor)
+def main():
+    with open('house_traits.json', 'r') as f:
+        house_traits = json.load(f)
+    
+    stop_words = [
+        'acting',
+        'carriage',
+        'charge',
+        'own',
+        'stab',
+        'prefect',
+        'pattern',
+        'possible',
+        'return',
+        'share',
+        'such',
+        'tendency',
+        'due',
+        'selection',
+        'student',
+        'Many',
+        'such',
+        'Order',
+        'house',
+        'main',
+        'many',
+        'other',
+        'point',
+        'pointless',
+        'regard',
+    ]
+    house_words = {}
+    for house, traits in house_traits.items():
+        blob = tb(traits)
+        words = extract_nouns_and_adjs(blob, stop_words)
+        house_words[house] = words
+    house_words
+    
+    with open(r'Data\house_words.json', 'w') as f:
+        json.dump(house_words, f)
 
-t_filtered = list(filter(lambda x: x[1] in ['JJ', 'NN'], t.tags))
+def extract_nouns_and_adjs(blob, stop_words):
+    blob_filtered = list(filter(lambda x: x[1] in ['JJ', 'NN'], blob.tags))
+    words = sorted(list(set(map(lambda x: x[0], blob_filtered))))
+    words_filtered = list(filter(lambda x: x not in stop_words, words))
+    return words_filtered
 
-words = sorted(list(set(map(lambda x: x[0], t_filtered))))
-
-stop_words = [
-    'Order',
-    'house',
-    'main',
-    'many',
-    'other',
-    'point',
-    'pointless',
-    'regard',
-]
-words_filtered = list(filter(lambda x: x not in stop_words, words))
-
-house_dict = {}
-house_dict['gryffindor'] = words_filtered
-
-fname = r'Data\house_words.json'
-with open(fname, 'w') as f:
-    json.dump(house_dict, f)
+if __name__ == '__main__':
+    main()
