@@ -45,7 +45,6 @@ def main():
         blob = tb(traits)
         words = extract_nouns_and_adjs(blob, stop_words)
         house_words[house] = words
-    house_words
     
     with open(r'Data\house_words.json', 'w') as f:
         json.dump(house_words, f)
