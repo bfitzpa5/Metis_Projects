@@ -10,6 +10,7 @@ import requests
 import base64
 import json
 from twitter_config import tc
+import datetime as dt
 
 base_url = 'https://api.twitter.com/'
 
@@ -59,12 +60,13 @@ def main():
         
     df = pd.concat(frames, sort=False)
     df = df.set_index(df.house + '_' + df.id_str)
-    
+    ts = dt.datetime.now().strftime('%y%m%d')
     fout = os.path.join(
         'data',
-        'house_tweets.json'   
+        f"HouseTweets_{ts}.json"
     )
     df.to_json(fout, orient='records')
+    print(f"\nSuccess!\nSee file located at:\t{fout}")
     
 if __name__ == '__main__':
     main()
