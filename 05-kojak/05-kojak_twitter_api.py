@@ -12,13 +12,13 @@ import json
 from twitter_config import tc
 import datetime as dt
 
-base_url = 'https://api.twitter.com/'
+_base_url = 'https://api.twitter.com/'
 
 def authenticate():
     key_secret = '{}:{}'.format(tc['api_key'], tc['api_secret_key']).encode('ascii')
     b64_encoded_key = base64.b64encode(key_secret)
     b64_encoded_key = b64_encoded_key.decode('ascii')
-    auth_url = '{}oauth2/token'.format(base_url)
+    auth_url = '{}oauth2/token'.format(_base_url)
     auth_headers = {
         'Authorization': 'Basic {}'.format(b64_encoded_key),
         'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
@@ -39,7 +39,7 @@ def tweet_df(term, access_token):
         'lang': 'en',
         #'result_type': 'popular',
     }
-    search_url = '{}1.1/search/tweets.json'.format(base_url)
+    search_url = '{}1.1/search/tweets.json'.format(_base_url)
     search_resp = requests.get(search_url, headers=search_headers, params=search_params)
     
     data = json.loads(search_resp.content)
