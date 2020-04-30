@@ -60,12 +60,14 @@ df = (pd.DataFrame(characters, columns=['character'])
       .rename(columns={
           0: 'name',
           1: 'description',
-          })
+          }
+       )
       .pipe(remove_names)
       .pipe(first_and_last_names)
       .reindex(columns=order)
      )
 
+# check no first names are duplicated
 assert(not df.first_name.duplicated().any())
 
 df.to_csv('characters.csv', index=False)
