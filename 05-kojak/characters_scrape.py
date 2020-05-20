@@ -71,3 +71,36 @@ df = (pd.DataFrame(characters, columns=['character'])
 assert(not df.first_name.duplicated().any())
 
 df.to_csv('characters.csv', index=False)
+
+
+"""
+Houses
+"""
+base_url = 'https://harrypotter.fandom.com/wiki/'
+
+df = pd.read_csv('characters.csv')
+df.loc[:, 'house'] = None
+names = df.name.to_list()
+
+for name in names:
+    try:
+        url = base_url + name.replace(' ', '_')
+        response = requests.get(url)
+        soup = BeautifulSoup(response.text, 'html.parser')
+        
+        house = (soup.find('div', {'data-source': 'house'})
+                 .find('div', {'class': 'pi-data-value'})
+                 .text
+                 )
+        mask = df.loc[:, 'name'] == name
+        df.loc[mask, 'house'] = house
+    except:
+        pass
+    
+df.loc[:, 'house'] = (df.loc[:, 'house']
+    .str.replace(r'\[\d+\]| \(likely\)| \(possibly\)', '')
+)
+
+
+
+df.to_csv('characters.csv', index=False)
