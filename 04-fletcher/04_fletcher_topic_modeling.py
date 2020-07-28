@@ -11,6 +11,7 @@ from langdetect import detect
 import nltk
 from nltk.corpus import stopwords
 import spacy
+from kickstarter_utils import create_df_topic_word_lists
 
 nltk.download('stopwords')
 
@@ -31,20 +32,6 @@ df.head()
 mask = ~df.loc[:, 'story'].isnull() & (df.loc[:, 'story'] != '')
 df = df.loc[mask, :]
 
-def create_df_topic_word_lists(lda, n=10, verbose=False):
-    topic_word_lists = list()
-    components = lda.components_
-    for i, topic in enumerate(components):
-        word_list = [cv.get_feature_names()[index] for index in topic.argsort()[-n:]]
-        topic_word_lists.append(word_list)
-        if verbose:
-            print(f"The TOP {n} WORDS FOR TOPIC #{i}")
-            print(word_list)
-            print('\n\n')
-    columns = ['Word {}'.format(x) for x in range(1, n+1)]
-    index = ['Topic {}'.format(x) for x in range(1, len(components)+1)]
-    return pd.DataFrame(topic_word_lists, index, columns)
-
 ##############################################################################
 # First model
 ##############################################################################
@@ -55,10 +42,11 @@ dtm = cv.fit_transform(x)
 lda = LatentDirichletAllocation(n_components=10, random_state=42)
 lda.fit(dtm)
 
-create_df_topic_word_lists(lda, verbose=True) 
-
 topic_results = lda.transform(dtm)
-df.loc[:, 'Topic'] = topic_results.argmax(axis=1)
+df.loc[:, 'topic_id'] = topic_results.argmax(axis=1) + 1
+
+args = [lda, cv, df,]
+create_df_topic_word_lists(*args, verbose=True) 
 
 ##############################################################################
 # Remove other languages
@@ -70,6 +58,10 @@ columns = ['story', 'language']
 df.loc[non_english_lang_mask, columns]
 
 mask = df.loc[:, 'language'] == 'en'
+df = df.loc[mask, ]
+
+# remove ones that still have some spanish in them
+mask = ~df.story.str.contains(' este ')
 df = df.loc[mask, ]
 
 ##############################################################################
@@ -84,16 +76,15 @@ lda.fit(dtm)
 
 topic_results = lda.transform(dtm)
 
-df_topic_word_lists = create_df_topic_word_lists(lda, n=15, verbose=False)
+df.loc[:, 'topic_id'] = topic_results.argmax(axis=1) + 1
 
-df.loc[:, 'Topic ID'] = topic_results.argmax(axis=1) + 1
+args = [lda, cv, df,]
+df_topic_word_lists = create_df_topic_word_lists(*args, n=15, verbose=False)
 
-df.loc[:, 'Topic ID'].value_counts()
-
-mask = df.loc[: , 'Topic ID'].isin([7, 8])
-columns = ['Topic ID', 'project_description']
+mask = df.loc[: , 'topic_id'].isin([7, 8])
+columns = ['topic_id', 'project_description']
 (df.loc[mask, columns]
-    .set_index('Topic ID')
+    .set_index('topic_id')
     .sort_index()
 )
 
@@ -109,12 +100,11 @@ topic_labels = {
     9: 'other languages',
     10: 'technology',
 }
-df.loc[:, 'Topic'] = df.loc[:, 'Topic ID'].map(topic_labels)
+df.loc[:, 'topic'] = df.loc[:, 'topic_id'].map(topic_labels)
 
 ##############################################################################
 # Third model - with SpaCy
 ##############################################################################
-
 nlp = spacy.load("en_core_web_sm")
 relevant_pos = [
     'ADJ',
@@ -123,42 +113,68 @@ relevant_pos = [
     'VERB',  
 ]
 
+def lemma_check(token):
+    return token.pos_ in relevant_pos and token.lemma_ != '-PRON-'
+
 def spacy_preprocessing(text):
     doc = nlp(text)
-    lemmas = [token.lemma_ for token in doc if token.pos_ in relevant_pos and token.lemma_ != '-PRON-']
+    lemmas = [token.lemma_ for token in doc if lemma_check(token)]
     return " ".join(lemmas)
 
 x = df.loc[:, 'story'].apply(spacy_preprocessing)
 
-cv = CountVectorizer(max_df=0.9, min_df=2, stop_words=full_stopwords)
-dtm = cv.fit_transform(x)
+cv = CountVectorizer(max_df=0.9, min_df=30, stop_words=full_stopwords)
+dtm = cv.fit_transform(x) # dtm = document-term matrix
 
-lda = LatentDirichletAllocation(n_components=10, random_state=42)
-lda.fit(dtm)
+for n_component in range(6, 14, 2):
+    lda = LatentDirichletAllocation(n_components=n_component, random_state=42)
+    lda.fit(dtm)
 
-topic_results = lda.transform(dtm)
-df.loc[:, 'Topic ID'] = topic_results.argmax(axis=1) + 1
-df.loc[:, 'Topic ID'].value_counts()
+    topic_results = lda.transform(dtm)
+    df.loc[:, 'topic_id'] = topic_results.argmax(axis=1) + 1
 
-df_topic_word_lists = create_df_topic_word_lists(lda, n=15, verbose=False)
-df_topic_word_lists
+    with open(f"Data/model_with_{n_component}_topics.txt", 'w') as f:
+        args = [lda, cv, df,]
+        df_topic_word_lists = create_df_topic_word_lists(*args, n=20, f=f)
 
 topic_labels = {
-    1: 'film',
-    2: 'design', 
-    3: 'publishing', 
-    4: 'games', 
-    5: 'technology', 
-    6: 'design',
-    7: 'unknown', 
-    8: 'unknown',
-    9: 'music',
-    10: 'food',
+    1: 'games',
+    2: 'publishing', 
+    3: 'comic', 
+    4: 'food', 
+    5: '', 
+    6: 'film',
+    7: 'game', 
+    8: '',
+    9: '',
+    10: '',
 }
-df.loc[:, 'Topic'] = df.loc[:, 'Topic ID'].map(topic_labels)
+df.loc[:, 'topic'] = df.loc[:, 'topic_id'].map(topic_labels)
 
-mask = df.loc[:, 'Topic ID'] == 10
-(df.loc[mask, 'category_url']
+##############################################################################
+# Compare model results to Kickstarter Categories
+##############################################################################
+from urllib.parse import unquote
+
+df.loc[:, 'kickstarter_category'] = (df.loc[:, 'category_url']
     .str.replace('https://www.kickstarter.com/discover/categories/', '')
     .str.split('?', expand=True)[0]
+    .str.split('/', expand=True)[0]
+    .apply(unquote)
+)
+
+(df.kickstarter_category
+    .value_counts()
+    .sort_index()
+)
+
+mask = df.loc[:, 'topic_id'] == 10
+df.loc[mask, 'kickstarter_category']
+
+(df.groupby(['topic', 'kickstarter_category'])
+    .size()
+    .groupby(level=0).apply(lambda x: x / float(x.sum()))
+    .reset_index(name='percent_total')
+    .sort_values(['topic', 'percent_total'], ascending=[True, False])
+    .to_csv(r'Data/topics_vs_kickstarter_categories.csv', index=False)
 )
