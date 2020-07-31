@@ -8,6 +8,7 @@ from pandas import DataFrame
 from selenium import webdriver
 import json
 import random
+import codecs
 
 def create_df_topic_word_lists(lda, cv, df, n=10,
                                verbose=False, f=None):
@@ -41,29 +42,41 @@ def show_random_pitch():
     driver_file = r'C:\Users\Brendan Non-Admin\Downloads\chromedriver.exe'
     driver = webdriver.Chrome(driver_file)
     
-    get_next_url = 'yes'
+    get_next_url = 'y'
     
-    while get_next_url == 'yes':
+    while get_next_url == 'y':
         get_next_url = get_next_url.lower()
-        if get_next_url not in ['yes', 'no']:
-            print('Input must be either "yes" or "no"')
-            get_next_url = input('Get another page? Enter "yes" or "no": ')
+        get_another_page_prompt = 'Get another page? Enter "y" or "n": '
+        if get_next_url not in ['y', 'n']:
+            print('Input must be either "y" or "n"')
+            get_next_url = input(get_another_page_prompt)
             print()
-        elif get_next_url == "yes":
+        elif get_next_url == "y":
             pitch_idx = random.randint(0, len(data) - 1)
             project_data = data[pitch_idx]
+            
             project_name = project_data['project_name']            
             url = project_data['url']
+            pitch = project_data['story']
             
             if project_name:
                 print(f"\nLoading page for {project_name}")
             else:
                 print(f"\nLoading page for {url}")
             
+            with open(r'Data/current_project_pitch.txt', 'w') as f:
+                f.write(pitch)
+            
             driver.get(url)
             
-            get_next_url = input('Get another page? Enter "yes" or "no": ')
+            if False:
+                filename = r'Data/current_project_page_source.html'
+                with codecs.open(filename, 'w', 'utf-8') as f:
+                    f.write(driver.page_source)
+            
+            get_next_url = input(get_another_page_prompt)
     
     driver.quit()
-    
-show_random_pitch()
+
+if __name__ == '__main__':
+    show_random_pitch()

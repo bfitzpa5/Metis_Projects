@@ -11,7 +11,12 @@ from langdetect import detect
 import nltk
 from nltk.corpus import stopwords
 import spacy
-from kickstarter_utils import create_df_topic_word_lists
+from kickstarter_utils import create_df_topic_word_lists, show_random_pitch
+
+##############################################################################
+# Stop Words
+##############################################################################
+show_random_pitch()
 
 nltk.download('stopwords')
 
@@ -59,6 +64,7 @@ df.loc[non_english_lang_mask, columns]
 
 mask = df.loc[:, 'language'] == 'en'
 df = df.loc[mask, ]
+assert((df.language == 'en').all())
 
 # remove ones that still have some spanish in them
 mask = ~df.story.str.contains(' este ')
