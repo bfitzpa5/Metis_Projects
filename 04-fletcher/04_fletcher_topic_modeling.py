@@ -5,8 +5,8 @@ Created on Fri Jul 24 09:43:38 2020
 @author: Brendan Non-Admin
 """
 import pandas as pd
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.decomposition import LatentDirichletAllocation
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from sklearn.decomposition import LatentDirichletAllocation, NMF
 from langdetect import detect
 import nltk
 from nltk.corpus import stopwords
@@ -139,21 +139,52 @@ for n_component in range(6, 14, 2):
     topic_results = lda.transform(dtm)
     df.loc[:, 'topic_id'] = topic_results.argmax(axis=1) + 1
 
-    with open(f"Data/model_with_{n_component}_topics.txt", 'w') as f:
+    with open(f"Data/lda_model_with_{n_component}_topics.txt", 'w') as f:
         args = [lda, cv, df,]
         df_topic_word_lists = create_df_topic_word_lists(*args, n=20, f=f)
 
+##############################################################################
+# Try NMF model uses the 10 topic category
+##############################################################################
+
+tfidf_kwargs = dict(
+    max_df=0.95, 
+    min_df=10, 
+    stop_words=full_stopwords,
+)
+tfidf_vectorizer = TfidfVectorizer(**tfidf_kwargs)
+tfidf = tfidf_vectorizer.fit_transform(x)
+n_components = 10
+nmf = NMF(n_components=n_components, random_state=42).fit(tfidf)
+
+topic_results = nmf.transform(tfidf)
+df.loc[:, 'topic_id'] = topic_results.argmax(axis=1) + 1
+
+with open(f"Data/nmf_model_with_10_topics.txt", 'w') as f:
+    args = [nmf, tfidf_vectorizer, df,]
+    df_topic_word_lists = create_df_topic_word_lists(*args, n=20, f=f)
+    
+
+##############################################################################
+# Final LDA model uses the 10 topic category
+##############################################################################
+lda = LatentDirichletAllocation(n_components=n_component, random_state=42)
+lda.fit(dtm)
+
+topic_results = lda.transform(dtm)
+df.loc[:, 'topic_id'] = topic_results.argmax(axis=1) + 1
+
 topic_labels = {
-    1: 'games',
+    1: 'design',
     2: 'publishing', 
-    3: 'comic', 
-    4: 'food', 
-    5: '', 
-    6: 'film',
-    7: 'game', 
-    8: '',
-    9: '',
-    10: '',
+    3: 'unknown', 
+    4: 'games', 
+    5: 'comics', 
+    6: 'art & fashion',
+    7: 'music', 
+    8: 'film & video',
+    9: 'food',
+    10: 'technology',
 }
 df.loc[:, 'topic'] = df.loc[:, 'topic_id'].map(topic_labels)
 
@@ -172,10 +203,11 @@ df.loc[:, 'kickstarter_category'] = (df.loc[:, 'category_url']
 (df.kickstarter_category
     .value_counts()
     .sort_index()
+    .reset_index()
 )
 
-mask = df.loc[:, 'topic_id'] == 10
-df.loc[mask, 'kickstarter_category']
+mask = df.loc[:, 'topic_id'] == 3
+df.loc[mask, 'kickstarter_category'].value_counts(normalize=True)
 
 (df.groupby(['topic', 'kickstarter_category'])
     .size()
