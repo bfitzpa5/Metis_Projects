@@ -5,6 +5,7 @@ Created on Tue Aug  4 11:10:05 2020
 @author: Brendan Non-Admin
 """
 
+import datetime as dt
 import keras
 from keras.models import Sequential
 from keras.layers import Dense,LSTM,Embedding
@@ -34,7 +35,6 @@ def initalize_model(vocabulary_size, seq_len):
     model.add(LSTM(150, return_sequences=True))
     model.add(LSTM(150))
     model.add(Dense(150, activation='relu'))
-
     model.add(Dense(vocabulary_size, activation='softmax'))
     
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
@@ -42,6 +42,15 @@ def initalize_model(vocabulary_size, seq_len):
     model.summary()
     
     return model
+
+def seconds_factorization(duration):
+    days, remainder = divmod(duration, (24 * 60**2))
+    hours, remainder = divmod(remainder , (60**2))
+    minutes, seconds = divmod(remainder, (60**1))
+    return days, hours, minutes, seconds
+
+def time_to_iso(t):
+    return dt.datetime.fromtimestamp(t).isoformat(timespec='minutes')
 
 def generate_text(model, tokenizer, seq_len, seed_text, num_gen_words):
     '''
