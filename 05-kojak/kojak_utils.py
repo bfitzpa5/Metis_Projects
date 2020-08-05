@@ -13,7 +13,7 @@ from keras.layers import Dense,LSTM,Embedding
 from keras.preprocessing.sequence import pad_sequences
 
 def read_book_texts():
-    datapath = os.path.join('Data', 'Book TXTs')
+    datapath = os.path.join('Data', 'BookTXTs')
 
     os.listdir(datapath)
     
