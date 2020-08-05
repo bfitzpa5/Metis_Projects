@@ -11,9 +11,12 @@ import numpy as np
 import kojak_utils as utils
 from keras.preprocessing.text import Tokenizer
 from keras.utils import to_categorical
+from pickle import dump
 
 book_text = utils.read_book_texts()
+
 nlp = spacy.load('en',disable=['parser', 'tagger','ner'])
+# nlp.max_length = len(book_text) + 1
 
 tokens = utils.separate_punc(nlp(book_text))
 
@@ -29,10 +32,10 @@ tokenizer = Tokenizer()
 tokenizer.fit_on_texts(text_sequences)
 sequences = np.array(tokenizer.texts_to_sequences(text_sequences))
 
-print(sequences[0].tolist())
+# print(sequences[0].tolist())
 
-for i in sequences[0]:
-    print(f'{i:>5,.0f}: {tokenizer.index_word[i]:<50}')
+#for i in sequences[0]:
+#    print(f'{i:>5,.0f}: {tokenizer.index_word[i]:<50}')
 
 vocabulary_size = len(tokenizer.word_counts)
 
@@ -55,3 +58,6 @@ duration = 4 * 60**2 + 2 * 60**1 + 58 * 60**0
 duration_factored = utils.seconds_factorization(duration)
 print("Duration:    {} days, {} hours, {} minutes, and {} seconds"
       .format(*duration_factored))
+
+model.save('hp_textgen.h5')
+dump(tokenizer, open('hp_textgen_tokenizer.pkl', 'wb'))
