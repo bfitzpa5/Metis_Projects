@@ -10,6 +10,7 @@ import spacy
 import numpy as np
 import kojak_utils as utils
 from keras.preprocessing.text import Tokenizer
+from keras.callbacks import CSVLogger
 from keras.utils import to_categorical
 from pickle import dump
 
@@ -49,12 +50,14 @@ model = utils.initalize_model(vocabulary_size+1, seq_len)
 start = time.time()
 start_str = utils.time_to_iso(start)
 print(f"Started at:  {start_str:>15}")
-model.fit(X, y, batch_size=128, epochs=300, verbose=1)
+
+csv_logger = CSVLogger('log.csv', append=True, separator=';')
+model.fit(X, y, batch_size=128, epochs=3, verbose=1, callbacks=[csv_logger])
+
 end = time.time()
 end_str = utils.time_to_iso(end)
 print(f"Ended at:    {end_str:>15}")
 duration = end - start
-duration = 4 * 60**2 + 2 * 60**1 + 58 * 60**0
 duration_factored = utils.seconds_factorization(duration)
 print("Duration:    {} days, {} hours, {} minutes, and {} seconds"
       .format(*duration_factored))
