@@ -52,7 +52,7 @@ start_str = utils.time_to_iso(start)
 print(f"Started at:  {start_str:>15}")
 
 csv_logger = CSVLogger('log.csv', append=True, separator=';')
-model.fit(X, y, batch_size=128, epochs=3, verbose=1, callbacks=[csv_logger])
+model.fit(X, y, batch_size=128, epochs=300, verbose=1, callbacks=[csv_logger])
 
 end = time.time()
 end_str = utils.time_to_iso(end)
