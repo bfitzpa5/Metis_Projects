@@ -5,37 +5,14 @@ Created on Tue Aug  4 09:13:20 2020
 @author: Brendan Non-Admin
 """
 
-import os
 import time
-import unicodedata
 import spacy
 import numpy as np
 import kojak_utils as utils
 from keras.preprocessing.text import Tokenizer
 from keras.utils import to_categorical
-import datetime as dt
 
-datapath = os.path.join('Data', 'Book TXTs')
-
-os.listdir(datapath)
-
-book_filenames = [
-    'philosophers_stone.txt',
-    'chamber_of_secrets.txt',
-    'prisoner_of_azkaban.txt',
-    'goblet_of_fire.txt',
-    'order_of_the_phoenix.txt',
-    'half_blood_prince.txt',
-    'deathly_hallows.txt',
-]
-
-book_filename = book_filenames[0]
-
-filepath = os.path.join(datapath, book_filename)
-    
-with open(filepath, 'r') as f:
-    book_text = unicodedata.normalize("NFKD", f.read())
-
+book_text = utils.read_book_texts()
 nlp = spacy.load('en',disable=['parser', 'tagger','ner'])
 
 tokens = utils.separate_punc(nlp(book_text))
@@ -45,8 +22,8 @@ train_len = 30 + 1
 
 text_sequences = utils.create_text_sequences(tokens, train_len)
 
-' '.join(text_sequences[0])
-len(text_sequences)
+#' '.join(text_sequences[0])
+#len(text_sequences)
 
 tokenizer = Tokenizer()
 tokenizer.fit_on_texts(text_sequences)

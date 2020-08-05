@@ -5,12 +5,42 @@ Created on Tue Aug  4 11:10:05 2020
 @author: Brendan Non-Admin
 """
 
+import os
 import datetime as dt
-import keras
+import unicodedata
 from keras.models import Sequential
 from keras.layers import Dense,LSTM,Embedding
-from random import randint
 from keras.preprocessing.sequence import pad_sequences
+
+def read_book_texts():
+    datapath = os.path.join('Data', 'Book TXTs')
+
+    os.listdir(datapath)
+    
+    book_filenames = [
+        'philosophers_stone.txt',
+        'chamber_of_secrets.txt',
+        'prisoner_of_azkaban.txt',
+        'goblet_of_fire.txt',
+        'order_of_the_phoenix.txt',
+        'half_blood_prince.txt',
+        'deathly_hallows.txt',
+    ]
+    
+    books = list()
+    for book_filename in book_filenames:
+        filepath = os.path.join(datapath, book_filename)
+            
+        with open(filepath, 'r') as f:
+            book_text = unicodedata.normalize("NFKD", f.read())
+        books.append(book_text)
+    
+    book_text = ''.join(books)
+    
+    if len(book_text) != 6272068:
+        raise ValueError("Book Texts Not Properly Read In")
+    
+    return book_text
 
 def separate_punc(tokens):
     punc_tokens = '\n\n \n\n\n!"-#$%&()--.*+,-/:;<=>?@[\\]^_`{|}~\t\n '
